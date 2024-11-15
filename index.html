@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Art Puzzle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        #puzzleContainer {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            margin: 50px auto;
+            width: 315px;
+        }
+        .puzzle-piece {
+            width: 100px;
+            height: 100px;
+            background-size: 300px 300px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h2>Digital Art Puzzle</h2>
+    <p>Drag each piece into the correct position to complete the puzzle!</p>
+    <div id="puzzleContainer">
+        <!-- Puzzle pieces will be generated here -->
+    </div>
+    <div id="message" style="display: none; font-size: 24px; color: green; margin-top: 20px;">
+        Congratulations! You've completed the puzzle!
+    </div>
+
+    <script>
+        const puzzleContainer = document.getElementById('puzzleContainer');
+        const message = document.getElementById('message');
+        const correctOrder = ["title1.jpg", "title2.jpg", "title3.jpg", "title4.jpg", "title5.jpg", "title6.jpg", "title7.jpg", "title8.jpg", "title9.jpg"];
+        let pieces = [...correctOrder]; // Create a copy to shuffle
+
+        // Shuffle the pieces
+        pieces.sort(() => Math.random() - 0.5);
+
+        // Create puzzle pieces
+        pieces.forEach((piece, index) => {
+            const div = document.createElement('div');
+            div.classList.add('puzzle-piece');
+            div.style.backgroundImage = `url(imageFiles/${piece})`; // Updated path for images
+            div.draggable = true;
+            div.dataset.index = index;
+            puzzleContainer.appendChild(div);
+
+            // Drag events
+            div.addEventListener('dragstart', dragStart);
+            div.addEventListener('dragover', dragOver);
+            div.addEventListener('drop', drop);
+        });
+
+        function dragStart(e) {
+            e.dataTransfer.setData("text/plain", e.target.dataset.index);
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+        }
+
+        function drop(e) {
+            e.preventDefault();
+            const draggedIndex = e.dataTransfer.getData("text/plain");
+            const targetIndex = e.target.dataset.index;
+
+            // Swap pieces
+            [pieces[draggedIndex], pieces[targetIndex]] = [pieces[targetIndex], pieces[draggedIndex]];
+            updatePuzzle();
+
+            // Check if the puzzle is solved
+            if (isSolved()) {
+                message.style.display = 'block';
+            }
+        }
+
+        function updatePuzzle() {
+            const pieceElements = puzzleContainer.children;
+            pieces.forEach((piece, index) => {
+                pieceElements[index].style.backgroundImage = `url(imageFiles/${piece})`;
+                pieceElements[index].dataset.index = index;
+            });
+        }
+
+        function isSolved() {
+            return pieces.every((piece, index) => piece === correctOrder[index]);
+        }
+    </script>
+</body>
+</html>
